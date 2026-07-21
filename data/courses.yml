@@ -1,0 +1,124 @@
+schema_version: 1
+courses:
+  - id: calculus
+    subject: 数学
+    title: 微积分
+    index: math/calculus/index.md
+    resources_page: math/calculus/resources.md
+    progress: 0
+    pending_chapters: [极限与连续, 一元函数微分学, 一元函数积分学, 多元函数微分学, 重积分, 级数, 微分方程]
+    published_notes: []
+  - id: linear-algebra
+    subject: 数学
+    title: 线性代数
+    index: math/linear-algebra/index.md
+    resources_page: math/linear-algebra/resources.md
+    progress: 0
+    pending_chapters: [线性方程组, 矩阵与行列式, 向量空间, 特征值与特征向量, 正交性, 二次型]
+    published_notes: []
+  - id: probability-statistics
+    subject: 数学
+    title: 概率论与数理统计
+    index: math/probability-statistics/index.md
+    resources_page: math/probability-statistics/resources.md
+    progress: 15
+    pending_chapters: [概率空间, 条件概率, 随机变量, 大数定律与中心极限定理, 参数估计, 假设检验]
+    published_notes:
+      - title: MGF、常见分布与可加性
+        path: math/probability-statistics/mgf-and-additivity.md
+        status: reviewing
+  - id: university-physics
+    subject: 物理
+    title: 大学物理
+    index: physics/university-physics/index.md
+    resources_page: physics/university-physics/resources.md
+    progress: 0
+    pending_chapters: [力学, 热学, 振动与波, 电磁学, 光学]
+    published_notes: []
+  - id: physics-lab
+    subject: 物理
+    title: 大学物理实验
+    index: physics/physics-lab/index.md
+    resources_page: physics/physics-lab/resources.md
+    progress: 38
+    pending_chapters: [分光计, 衍射光栅, 后续实验]
+    published_notes:
+      - title: 示波器与李萨如图形
+        path: physics/physics-lab/oscilloscope-lissajous.md
+        status: reviewing
+      - title: 惠斯通电桥与电阻测量
+        path: physics/physics-lab/wheatstone-bridge.md
+        status: reviewing
+      - title: 旋光度与马吕斯定律
+        path: physics/physics-lab/polarimetry-malus.md
+        status: reviewing
+  - id: python
+    subject: 编程
+    title: Python
+    index: programming/python/index.md
+    resources_page: programming/python/resources.md
+    progress: 0
+    pending_chapters: [基础语法, 函数与作用域, 异常, 面向对象, NumPy 与数据处理, 测试与工程化]
+    published_notes: []
+  - id: cpp
+    subject: 编程
+    title: C++
+    index: programming/cpp/index.md
+    resources_page: programming/cpp/resources.md
+    progress: 24
+    pending_chapters: [基础语法, 函数与引用, 模板与标准库, 异常安全, 并发基础]
+    published_notes:
+      - title: 指针、所有权与 RAII
+        path: programming/cpp/pointers-ownership-raii.md
+        status: reviewing
+      - title: 类、继承与运行时多态
+        path: programming/cpp/classes-inheritance-polymorphism.md
+        status: reviewing
+  - id: machine-learning
+    subject: 人工智能
+    title: 机器学习
+    index: ai/machine-learning/index.md
+    resources_page: ai/machine-learning/resources.md
+    progress: 10
+    pending_chapters: [线性模型, 决策树, 支持向量机, 无监督学习, 泛化与正则化]
+    published_notes:
+      - title: 分类指标与可靠评估
+        path: ai/machine-learning/classification-evaluation.md
+        status: reviewing
+  - id: deep-learning
+    subject: 人工智能
+    title: 深度学习
+    index: ai/deep-learning/index.md
+    resources_page: ai/deep-learning/resources.md
+    progress: 18
+    pending_chapters: [反向传播, 卷积网络, 注意力机制, 训练稳定性, 表征学习]
+    published_notes:
+      - title: 优化器：SGD、Momentum 与 Adam
+        path: ai/deep-learning/optimizers.md
+        status: reviewing
+      - title: LayerNorm 前向与反向推导
+        path: ai/deep-learning/layer-normalization.md
+        status: reviewing
+  - id: reinforcement-learning
+    subject: 人工智能
+    title: 强化学习
+    index: ai/reinforcement-learning/index.md
+    resources_page: ai/reinforcement-learning/resources.md
+    progress: 0
+    pending_chapters: [MDP, 动态规划, 蒙特卡洛与时序差分, 策略梯度, Actor-Critic, 离线强化学习]
+    published_notes: []
+  - id: vla
+    subject: 人工智能
+    title: VLA 与机器人学习
+    index: ai/vla/index.md
+    resources_page: ai/vla/resources.md
+    progress: 18
+    pending_chapters: [机器人学习基础, 视觉语言表征, 行为克隆, 多任务训练, 评测与安全]
+    published_notes:
+      - title: 从注意力到动作解码
+        path: ai/vla/attention-to-action.md
+        status: reviewing
+      - title: 动作分块与闭环执行
+        path: ai/vla/action-chunking.md
+        status: reviewing
+
