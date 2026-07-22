@@ -20,26 +20,35 @@ def render() -> str:
     resources = [item for item in manifest.get("resources", []) if item.get("approved")]
     lines = [
         "---\n",
-        "title: 资料\n",
+        "title: 附件下载\n",
         "generated: true\n",
         "---\n\n",
-        "# 资料\n\n",
-        "| 课程 | 内容 | 文件 | 大小 | 来源 / 授权 | SHA-256 |\n",
-        "|---|---|---|---:|---|---|\n",
+        "# 附件下载\n\n",
+        "这里仅放 PDF、PPT、压缩包等适合单独下载的大附件。",
+        "Markdown 笔记、图片和源码都跟随对应课程笔记存放。\n\n",
     ]
     if not resources:
-        lines.append("| — | 暂无公开资料 | — | — | — | — |\n")
+        lines.append("暂无公开附件。\n")
+    current_course = None
+    current_chapter = None
     for item in resources:
-        checksum = str(item["checksum"]).removeprefix("sha256:")
+        if item["course"] != current_course:
+            current_course = item["course"]
+            current_chapter = None
+            lines.append(f'## {current_course}\n\n')
+        if item["chapter"] != current_chapter:
+            current_chapter = item["chapter"]
+            lines.append(f'### {current_chapter}\n\n')
         lines.append(
-            f'| {item["course"]} | {item["chapter"]} | '
-            f'[{item["title"]}]({item["asset_url"]}) ({item["file_type"]}) | '
-            f'{item["size"]} | {item["source"]}；{item["rights_basis"]} | '
-            f'`{checksum[:12]}…` |\n'
+            f'- [{item["title"]}]({item["asset_url"]}) '
+            f'`{item["file_type"]}` · {item["size"]}\n'
+            f'  <small>来源：{item["source"]}；公开依据：{item["rights_basis"]}</small>\n\n'
         )
     lines.extend([
-        "\n文件存放在 [learning-resources Releases]",
-        "(https://github.com/Wasdar456/learning-resources/releases)。\n",
+        "\n---\n\n",
+        "这些大附件存放在 [learning-resources Releases]",
+        "(https://github.com/Wasdar456/learning-resources/releases)；",
+        "普通学习笔记不需要上传到那里。\n",
     ])
     return "".join(lines)
 

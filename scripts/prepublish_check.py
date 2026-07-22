@@ -21,6 +21,11 @@ HIGH_RISK_SEGMENTS = {
     "private", "internal", "secrets", "credentials", "raw-submission",
     "research-drafts",
 }
+TEXT_SUFFIXES = {
+    ".md", ".txt", ".rst", ".csv", ".json", ".yml", ".yaml",
+    ".c", ".cc", ".cpp", ".h", ".hpp", ".py", ".java", ".js",
+    ".ts", ".rs", ".go", ".sh", ".ps1", ".html", ".css",
+}
 KNOWN_PRIVATE_NAME_DIGESTS = {
     "caca68d84fb9259e6761d39b092c6f2df305f4aaab190c70a9fe84db95da13a6"
 }
@@ -87,7 +92,12 @@ def validate_privacy(errors):
 
     candidates = list((ROOT / "docs").rglob("*")) + list((ROOT / "data").rglob("*"))
     candidates += [ROOT / "README.md", ROOT / "NOTICE.md"]
-    for path in sorted(item for item in candidates if item.is_file() and "vendor" not in item.parts):
+    for path in sorted(
+        item for item in candidates
+        if item.is_file()
+        and "vendor" not in item.parts
+        and item.suffix.lower() in TEXT_SUFFIXES
+    ):
         try:
             text = path.read_text(encoding="utf-8")
         except UnicodeDecodeError:
@@ -106,11 +116,13 @@ def validate_privacy(errors):
 
 
 def validate_links(errors):
-    pattern = re.compile(r"(?<!!)\[[^\]]+\]\(([^)]+)\)")
+    pattern = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
     for path in sorted((ROOT / "docs").rglob("*.md")):
         text = path.read_text(encoding="utf-8")
-        for raw in pattern.findall(text):
-            target = raw.split("#", 1)[0].strip()
+        prose = re.sub(r"(?ms)^(```|~~~).*?^\1[ \t]*$", "", text)
+        prose = re.sub(r"`[^`\n]+`", "", prose)
+        for raw in pattern.findall(prose):
+            target = raw.split("#", 1)[0].strip().strip("<>")
             if not target or target.startswith(("http://", "https://", "mailto:")):
                 continue
             if not (path.parent / target).resolve().exists():
