@@ -11,3 +11,10 @@ window.MathJax = {
   }
 };
 
+document$.subscribe(() => {
+  if (window.MathJax?.typesetPromise) {
+    MathJax.typesetClear();
+    MathJax.texReset();
+    MathJax.typesetPromise();
+  }
+});

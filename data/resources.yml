@@ -1,4 +1,54 @@
 schema_version: 1
 repository: https://github.com/Wasdar456/learning-resources
-resources: []
+resources:
+  - course: C++
+    chapter: 期末复习
+    title: C++ 期末复习讲义（整理纠错版）
+    asset_url: https://github.com/Wasdar456/learning-resources/releases/download/cpp-2026.1/cpp-final-review.pdf
+    file_type: PDF
+    size: 769 KiB
+    source: 本人课堂笔记整理
+    rights_basis: 本人整理并批准公开
+    checksum: sha256:0332623af15363d79100b0a0bd7592221dadbfd68a893cf3788e982479d5adde
+    approved: true
+  - course: 大学物理 III
+    chapter: 综合模拟 A
+    title: 大学物理 III 模拟试卷 A
+    asset_url: https://github.com/Wasdar456/learning-resources/releases/download/university-physics-2026.1/physics3-mock-a.pdf
+    file_type: PDF
+    size: 54.2 KiB
+    source: 本人整理/自编
+    rights_basis: 本人原创并批准公开
+    checksum: sha256:e7634d1e2b0ebe4871bb15567019cd4ea1d375c61c13b606bd8d174c2a7bbcea
+    approved: true
+  - course: 大学物理 III
+    chapter: 综合模拟 A
+    title: 大学物理 III 模拟试卷 A 详细答案
+    asset_url: https://github.com/Wasdar456/learning-resources/releases/download/university-physics-2026.1/physics3-mock-a-solutions.pdf
+    file_type: PDF
+    size: 60.4 KiB
+    source: 本人整理/自编
+    rights_basis: 本人原创并批准公开
+    checksum: sha256:b7c0f73b2635a13f3998a1f6a54618bf799c30ec670de1f9ec0a2998e4581899
+    approved: true
+  - course: 大学物理 III
+    chapter: 综合模拟 B
+    title: 大学物理 III 模拟试卷 B
+    asset_url: https://github.com/Wasdar456/learning-resources/releases/download/university-physics-2026.1/physics3-mock-b.pdf
+    file_type: PDF
+    size: 50.4 KiB
+    source: 本人整理/自编
+    rights_basis: 本人原创并批准公开
+    checksum: sha256:bd0d171854612c1d3f3d6b7b09633ab59e3b8025c6e92ce642758a624285eb74
+    approved: true
+  - course: 大学物理 III
+    chapter: 综合模拟 B
+    title: 大学物理 III 模拟试卷 B 详细答案
+    asset_url: https://github.com/Wasdar456/learning-resources/releases/download/university-physics-2026.1/physics3-mock-b-solutions.pdf
+    file_type: PDF
+    size: 57.4 KiB
+    source: 本人整理/自编
+    rights_basis: 本人原创并批准公开
+    checksum: sha256:acb42f6e96545e98548146a184098a4d96e7c3c5e9050d9fd9c5027f2ba730ac
+    approved: true
 

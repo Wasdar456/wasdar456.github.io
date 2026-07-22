@@ -1,64 +1,57 @@
-"""Build the primary navigation from the reviewed course and paper manifests."""
+"""Build the note navigation directly from folders under docs/notes."""
 
+from __future__ import annotations
+
+import re
 from pathlib import Path
 
 import yaml
 
 
 ROOT = Path(__file__).resolve().parent
+NOTES = ROOT / "docs" / "notes"
+FOLDER_TITLES = {
+    "cpp": "C++",
+    "vla": "VLA 八股",
+}
 
 
-def _load(name):
-    with (ROOT / "data" / name).open(encoding="utf-8") as handle:
-        return yaml.safe_load(handle)
+def _page_title(path: Path) -> str:
+    text = path.read_text(encoding="utf-8")
+    if text.startswith("---\n"):
+        try:
+            _, raw, _ = text.split("---\n", 2)
+            title = (yaml.safe_load(raw) or {}).get("title")
+            if title:
+                return str(title)
+        except (ValueError, yaml.YAMLError):
+            pass
+    match = re.search(r"^#\s+(.+?)\s*$", text, re.MULTILINE)
+    if match:
+        return match.group(1)
+    return re.sub(r"^\d+[._ -]*", "", path.stem).replace("_", " ")
+
+
+def _folder_nav(folder: Path):
+    pages = []
+    for path in sorted(folder.rglob("*.md"), key=lambda item: item.as_posix().lower()):
+        relative = path.relative_to(ROOT / "docs").as_posix()
+        pages.append({_page_title(path): relative})
+    return pages
 
 
 def on_config(config):
-    courses = _load("courses.yml")["courses"]
-    papers = _load("papers.yml")["papers"]
+    note_groups = []
+    if NOTES.exists():
+        for folder in sorted(item for item in NOTES.iterdir() if item.is_dir()):
+            pages = _folder_nav(folder)
+            if pages:
+                note_groups.append({FOLDER_TITLES.get(folder.name, folder.name): pages})
 
-    subject_order = ["数学", "物理", "编程", "人工智能"]
-    subject_nav = []
-    for subject in subject_order:
-        entries = []
-        for course in (item for item in courses if item["subject"] == subject):
-            pages = [{"课程导航": course["index"]}]
-            pages.extend({note["title"]: note["path"]} for note in course["published_notes"])
-            pages.append({"课件文件库": course["resources_page"]})
-            entries.append({course["title"]: pages})
-        subject_nav.append({subject: entries})
-
-    topic_order = ["深度学习", "强化学习", "VLA / Robot Learning", "模型压缩与推理加速"]
-    topic_indexes = {
-        "深度学习": "papers/deep-learning/index.md",
-        "强化学习": "papers/reinforcement-learning/index.md",
-        "VLA / Robot Learning": "papers/vla/index.md",
-        "模型压缩与推理加速": "papers/model-efficiency/index.md",
-    }
-    paper_nav = [{"板块说明": "papers/index.md"}]
-    for topic in topic_order:
-        pages = [{"方向导航": topic_indexes[topic]}]
-        pages.extend({paper["short_title"]: paper["path"]} for paper in papers if paper["topic"] == topic)
-        paper_nav.append({topic: pages})
-
-    config["nav"] = [
-        {"首页": "index.md"},
-        {"学习地图": "knowledge-map.md"},
-        *subject_nav,
-        {"论文精读": paper_nav},
-        {"复现记录": "reproductions/index.md"},
-        {"全站课程目录": "generated/course-catalog.md"},
-        {"资源总目录": "generated/resource-catalog.md"},
-        {"学习进度": "progress.md"},
-        {"错误与未解决问题": [
-            {"错误簿": "mistakes.md"},
-            {"未解决问题": "questions.md"},
-        ]},
-        {"写作模板": [
-            {"课程笔记模板": "writing-guides/course-note.md"},
-            {"论文精读模板": "writing-guides/paper-review.md"},
-            {"复现记录模板": "writing-guides/reproduction.md"},
-        ]},
-        {"关于": "about.md"},
-    ]
+    nav = [{"首页": "index.md"}]
+    if note_groups:
+        nav.append({"笔记": note_groups})
+    if (ROOT / "docs" / "resources" / "index.md").exists():
+        nav.append({"资料": "resources/index.md"})
+    config["nav"] = nav
     return config

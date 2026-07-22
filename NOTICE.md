@@ -5,3 +5,5 @@
 本站不会分发未经授权的教师课件、教材、试卷、答案或原始实验报告。资源清单中的项目只有在 `approved: true`、授权依据完整且校验值有效时，才允许出现在公开下载列表中。
 
 图表渲染使用固定版本 Mermaid 11.16.0，依照 MIT License 分发；许可证全文位于 `docs/assets/vendor/mermaid/LICENSE`。
+
+公式渲染使用固定版本 MathJax 3.2.2，依照 Apache License 2.0 分发；许可证全文位于 `docs/assets/vendor/mathjax/LICENSE`。

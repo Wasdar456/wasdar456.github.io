@@ -1,23 +1,37 @@
-# Wasdar456 Learning Hub
+# Wasdar456 Notes
 
-这是 <https://wasdar456.github.io/> 的 MkDocs 源码仓库。站点按“学科 → 课程 → 章节 → 详细笔记”组织，重点保存经过重写、推导、校对和来源核验的学习记录。
+[wasdar456.github.io](https://wasdar456.github.io/) 的 MkDocs 源码。公开内容只保留个人复习笔记和已审核资料。
 
-## 本地检查
+## 添加笔记
+
+把一个 Markdown 文件夹放进 `docs/notes/`：
+
+```text
+docs/notes/
+└── new-course/
+    ├── 01-first-note.md
+    └── 02-second-note.md
+```
+
+提交后会自动出现在“笔记”导航里，无需手改 `mkdocs.yml`。页面标题依次读取 YAML front matter 的 `title`、第一个一级标题、文件名。
+
+## 本地预览
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
+python scripts/generate_site_data.py
+python scripts/prepublish_check.py
+mkdocs serve
+```
+
+提交前运行：
+
+```bash
 python scripts/generate_site_data.py --check
 python scripts/prepublish_check.py
 mkdocs build --strict
 ```
 
-如需更新课程状态或论文导航，先编辑 `data/courses.yml` 或 `data/papers.yml`，再运行：
-
-```bash
-python scripts/generate_site_data.py
-```
-
-课件附件不进入本仓库。经授权的附件由独立的 `Wasdar456/learning-resources` 仓库及其 GitHub Releases 托管。
-
+PDF、PPT、Word 等附件不提交到本站 Git 历史。通过公开授权与隐私检查后，上传到 [learning-resources Releases](https://github.com/Wasdar456/learning-resources/releases)，再登记到 `data/resources.yml`。

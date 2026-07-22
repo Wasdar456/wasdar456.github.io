@@ -1,5 +1,5 @@
-site_name: Wasdar456 Learning Hub
-site_description: Wasdar456 的分层课程笔记、论文精读与公开复现记录
+site_name: Wasdar456
+site_description: Wasdar456 的个人复习笔记与资料
 site_author: Wasdar456
 site_url: https://wasdar456.github.io/
 repo_url: https://github.com/Wasdar456/wasdar456.github.io
@@ -36,19 +36,11 @@ theme:
         icon: material/weather-sunny
         name: 切换到浅色模式
   features:
-    - announce.dismiss
-    - content.code.annotate
     - content.code.copy
-    - content.tooltips
-    - navigation.footer
     - navigation.indexes
     - navigation.instant
-    - navigation.instant.prefetch
     - navigation.sections
-    - navigation.tabs
-    - navigation.top
     - search.highlight
-    - search.share
     - search.suggest
     - toc.follow
 
@@ -62,7 +54,6 @@ plugins:
 markdown_extensions:
   - admonition
   - attr_list
-  - def_list
   - footnotes
   - md_in_html
   - tables
@@ -72,42 +63,29 @@ markdown_extensions:
   - pymdownx.arithmatex:
       generic: true
   - pymdownx.details
-  - pymdownx.emoji:
-      emoji_index: !!python/name:material.extensions.emoji.twemoji
-      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: __span
       pygments_lang_class: true
   - pymdownx.inlinehilite
-  - pymdownx.snippets
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_div_format
-  - pymdownx.tabbed:
-      alternate_style: true
-  - pymdownx.tasklist:
-      custom_checkbox: true
 
 extra_css:
   - assets/stylesheets/extra.css
 extra_javascript:
   - assets/javascripts/mathjax.js
-  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+  - assets/vendor/mathjax/tex-mml-chtml.js
   - assets/vendor/mermaid/mermaid.min.js
   - assets/javascripts/mermaid-init.js
 
 extra:
-  status:
-    mastered: 已掌握
-    reviewing: 复习中
-    published: 已发布
-    draft: 校对中
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/Wasdar456
       name: Wasdar456 on GitHub
 
-copyright: Copyright &copy; 2026 Wasdar456 · 学习笔记保留所有权利
+copyright: Copyright &copy; 2026 Wasdar456
