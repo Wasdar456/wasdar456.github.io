@@ -71,7 +71,11 @@ def main() -> int:
 
     print(f"已原样导入 {len(files)} 个文件到 {destination.relative_to(ROOT)}")
     if skipped:
-        print("以下大附件或未知文件未导入（请放 learning-resources）：")
+        print(
+            "以下附件或未知文件未自动导入："
+            "允许公开且不超过 20 MiB 的文件请手动放入章节 files/，"
+            "更大的文件请使用 learning-resources Release。"
+        )
         for path in skipped:
             print(f"- {path}")
     return 0

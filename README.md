@@ -4,7 +4,7 @@
 
 ## 日常写笔记
 
-为了便于多台电脑同步，日常直接编辑 `docs/notes/课程名/` 中的 Markdown、图片和小型源码。写完使用：
+为了便于多台电脑同步，日常直接编辑 `docs/notes/课程名/` 中的 Markdown、图片、小型源码和公开附件。写完使用：
 
 ```powershell
 .\scripts\publish.ps1 -Message "notes: update"
@@ -18,8 +18,9 @@
 数据结构/
 └── 第一章/
     ├── 第一章.md
-    ├── 1.1例四.png
-    └── max_subarray.cpp
+    ├── images/
+    ├── code/
+    └── files/                 # 不超过 20 MiB 的公开下载附件
 ```
 
 新增内容会自动出现在“笔记”导航里，无需手改 `mkdocs.yml`。页面标题依次读取 YAML front matter 的 `title`、第一个一级标题、文件名。
@@ -45,4 +46,4 @@ python scripts/prepublish_check.py
 mkdocs build --strict
 ```
 
-短代码直接写 Markdown 代码块；完整 `.cpp`、`.py` 等源码放在笔记旁边。只有 PDF、PPT、Word、压缩包等大附件才使用 [learning-resources Releases](https://github.com/Wasdar456/learning-resources/releases)。
+短代码直接写 Markdown 代码块；完整 `.cpp`、`.py` 等源码放在笔记旁边的 `code/`。不超过 20 MiB 的公开 PDF、PPT、Word、压缩包等放进对应章节的 `files/`，网站会自动生成下载入口；更大的文件使用 [learning-resources Releases](https://github.com/Wasdar456/learning-resources/releases)。

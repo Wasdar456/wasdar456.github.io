@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Block publication on privacy, resource, or broken-link failures."""
+"""Block publication on privacy, attachment, resource, or link failures."""
 
 from __future__ import annotations
 
@@ -7,24 +7,91 @@ import hashlib
 import re
 import sys
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 import yaml
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DISALLOWED_SUFFIXES = {
-    ".pdf", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx",
-    ".zip", ".7z", ".rar", ".tar", ".gz", ".env", ".key", ".pem",
+NOTES = ROOT / "docs" / "notes"
+MAX_LOCAL_ATTACHMENT_SIZE = 20 * 1024 * 1024
+ALLOWED_ATTACHMENT_SUFFIXES = {
+    ".pdf",
+    ".doc",
+    ".docx",
+    ".ppt",
+    ".pptx",
+    ".xls",
+    ".xlsx",
+    ".zip",
+    ".7z",
+    ".rar",
+    ".tar",
+    ".gz",
+    ".csv",
+    ".ipynb",
+    ".json",
+    ".txt",
 }
+RESTRICTED_TO_FILES_SUFFIXES = {
+    ".pdf",
+    ".doc",
+    ".docx",
+    ".ppt",
+    ".pptx",
+    ".xls",
+    ".xlsx",
+    ".zip",
+    ".7z",
+    ".rar",
+    ".tar",
+    ".gz",
+}
+EXECUTABLE_SUFFIXES = {
+    ".exe",
+    ".msi",
+    ".dll",
+    ".so",
+    ".dylib",
+    ".scr",
+    ".com",
+    ".bat",
+    ".cmd",
+}
+SECRET_SUFFIXES = {".env", ".key", ".pem", ".p12", ".pfx"}
 HIGH_RISK_SEGMENTS = {
-    "private", "internal", "secrets", "credentials", "raw-submission",
+    "private",
+    "internal",
+    "secrets",
+    "credentials",
+    "raw-submission",
     "research-drafts",
 }
+IGNORED_SEGMENTS = {".git", "site", ".venv", "__pycache__", ".cache"}
 TEXT_SUFFIXES = {
-    ".md", ".txt", ".rst", ".csv", ".json", ".yml", ".yaml",
-    ".c", ".cc", ".cpp", ".h", ".hpp", ".py", ".java", ".js",
-    ".ts", ".rs", ".go", ".sh", ".ps1", ".html", ".css",
+    ".md",
+    ".txt",
+    ".rst",
+    ".csv",
+    ".json",
+    ".yml",
+    ".yaml",
+    ".toml",
+    ".c",
+    ".cc",
+    ".cpp",
+    ".h",
+    ".hpp",
+    ".py",
+    ".java",
+    ".js",
+    ".ts",
+    ".rs",
+    ".go",
+    ".sh",
+    ".ps1",
+    ".html",
+    ".css",
 }
 KNOWN_PRIVATE_NAME_DIGESTS = {
     "caca68d84fb9259e6761d39b092c6f2df305f4aaab190c70a9fe84db95da13a6"
@@ -46,25 +113,45 @@ SENSITIVE_PATTERNS = {
 }
 
 
-def add_error(errors, path, message):
+def add_error(errors: list[str], path: Path, message: str) -> None:
     errors.append(f"{path.relative_to(ROOT)}: {message}")
 
 
-def validate_notes(errors):
-    notes = ROOT / "docs" / "notes"
-    if not notes.exists():
+def is_ignored(path: Path) -> bool:
+    return bool(IGNORED_SEGMENTS.intersection(path.parts))
+
+
+def is_local_attachment(path: Path) -> bool:
+    try:
+        relative = path.relative_to(NOTES)
+    except ValueError:
+        return False
+    return "files" in (part.lower() for part in relative.parts[:-1])
+
+
+def validate_notes(errors: list[str]) -> None:
+    if not NOTES.exists():
         errors.append("docs/notes: 笔记目录不存在")
         return
-    for folder in sorted(item for item in notes.iterdir() if item.is_dir()):
+    for folder in sorted(item for item in NOTES.iterdir() if item.is_dir()):
         if not any(folder.rglob("*.md")):
             add_error(errors, folder, "笔记文件夹中没有 Markdown 文件")
 
 
-def validate_resources(errors):
-    manifest = yaml.safe_load((ROOT / "data/resources.yml").read_text(encoding="utf-8")) or {}
+def validate_resources(errors: list[str]) -> None:
+    manifest_path = ROOT / "data" / "resources.yml"
+    manifest = yaml.safe_load(manifest_path.read_text(encoding="utf-8")) or {}
     required = {
-        "course", "chapter", "title", "asset_url", "file_type", "size",
-        "source", "rights_basis", "checksum", "approved",
+        "course",
+        "chapter",
+        "title",
+        "asset_url",
+        "file_type",
+        "size",
+        "source",
+        "rights_basis",
+        "checksum",
+        "approved",
     }
     for index, item in enumerate(manifest.get("resources", []), start=1):
         missing = required - set(item)
@@ -74,48 +161,95 @@ def validate_resources(errors):
         if item["approved"]:
             parsed = urlparse(str(item["asset_url"]))
             if parsed.scheme != "https" or parsed.netloc != "github.com":
-                errors.append(f"data/resources.yml item {index}: 附件必须使用 GitHub HTTPS 地址")
+                errors.append(
+                    f"data/resources.yml item {index}: "
+                    "Release 附件必须使用 github.com HTTPS 地址"
+                )
             if not re.fullmatch(r"sha256:[0-9a-f]{64}", str(item["checksum"])):
-                errors.append(f"data/resources.yml item {index}: 校验值格式无效")
+                errors.append(
+                    f"data/resources.yml item {index}: 校验值必须是 sha256: 加 64 位小写十六进制"
+                )
             if not str(item["rights_basis"]).strip():
-                errors.append(f"data/resources.yml item {index}: 缺少公开授权依据")
+                errors.append(
+                    f"data/resources.yml item {index}: 缺少公开授权依据"
+                )
 
 
-def validate_privacy(errors):
+def validate_attachments_and_paths(errors: list[str]) -> None:
     for path in ROOT.rglob("*"):
-        if not path.is_file() or any(part in {".git", "site", ".venv"} for part in path.parts):
+        if not path.is_file() or is_ignored(path):
             continue
-        if path.suffix.lower() in DISALLOWED_SUFFIXES:
-            add_error(errors, path, f"站点仓库禁止附件类型 {path.suffix}")
-        if HIGH_RISK_SEGMENTS.intersection(part.lower() for part in path.parts):
-            add_error(errors, path, "路径包含高风险目录名")
 
-    candidates = list((ROOT / "docs").rglob("*")) + list((ROOT / "data").rglob("*"))
-    candidates += [ROOT / "README.md", ROOT / "NOTICE.md"]
-    for path in sorted(
-        item for item in candidates
-        if item.is_file()
-        and "vendor" not in item.parts
-        and item.suffix.lower() in TEXT_SUFFIXES
-    ):
+        lowered_parts = {part.lower() for part in path.relative_to(ROOT).parts}
+        suffix = path.suffix.lower()
+        if HIGH_RISK_SEGMENTS.intersection(lowered_parts):
+            add_error(errors, path, "路径包含禁止公开的高风险目录名")
+        if suffix in SECRET_SUFFIXES:
+            add_error(errors, path, f"禁止公开密钥或环境文件 {suffix}")
+        if suffix in EXECUTABLE_SUFFIXES:
+            add_error(errors, path, f"禁止公开可执行文件 {suffix}")
+
+        local_attachment = is_local_attachment(path)
+        if suffix in RESTRICTED_TO_FILES_SUFFIXES and not local_attachment:
+            add_error(
+                errors,
+                path,
+                "下载附件必须放在 docs/notes/课程/章节/files/ 中",
+            )
+        if local_attachment:
+            if suffix not in ALLOWED_ATTACHMENT_SUFFIXES:
+                add_error(
+                    errors,
+                    path,
+                    f"files/ 不允许此文件类型 {suffix or '(无扩展名)'}",
+                )
+            if path.stat().st_size > MAX_LOCAL_ATTACHMENT_SIZE:
+                size_mib = path.stat().st_size / 1024 / 1024
+                add_error(
+                    errors,
+                    path,
+                    f"附件为 {size_mib:.1f} MiB，超过 20 MiB；请改用 learning-resources Release",
+                )
+
+
+def validate_privacy(errors: list[str]) -> None:
+    candidates = [
+        path
+        for path in ROOT.rglob("*")
+        if path.is_file()
+        and not is_ignored(path)
+        and "vendor" not in path.parts
+        and path.suffix.lower() in TEXT_SUFFIXES
+    ]
+    candidates += [
+        path
+        for path in (ROOT / "README.md", ROOT / "NOTICE.md")
+        if path.exists() and path not in candidates
+    ]
+    for path in sorted(set(candidates)):
         try:
             text = path.read_text(encoding="utf-8")
         except UnicodeDecodeError:
-            add_error(errors, path, "公开内容不是 UTF-8 文本")
+            add_error(errors, path, "公开文本不是 UTF-8 编码")
             continue
+        text_for_patterns = text.replace("git@ssh.github.com", "")
+        text_for_patterns = text_for_patterns.replace("git@github.com", "")
         for label, pattern in SENSITIVE_PATTERNS.items():
-            if pattern.search(text):
+            if pattern.search(text_for_patterns):
                 add_error(errors, path, f"检测到{label}")
         for index in range(max(0, len(text) - 2)):
-            digest = hashlib.sha256(text[index:index + 3].encode()).hexdigest()
+            digest = hashlib.sha256(text[index : index + 3].encode()).hexdigest()
             if digest in KNOWN_PRIVATE_NAME_DIGESTS:
                 add_error(errors, path, "检测到受保护的真实姓名")
                 break
-        if re.search(r"AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9]{20,}", text):
+        if re.search(
+            r"AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9]{20,}",
+            text,
+        ):
             add_error(errors, path, "检测到高置信度凭据格式")
 
 
-def validate_links(errors):
+def validate_links(errors: list[str]) -> None:
     pattern = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
     for path in sorted((ROOT / "docs").rglob("*.md")):
         text = path.read_text(encoding="utf-8")
@@ -125,12 +259,14 @@ def validate_links(errors):
             target = raw.split("#", 1)[0].strip().strip("<>")
             if not target or target.startswith(("http://", "https://", "mailto:")):
                 continue
+            target = unquote(target)
             if not (path.parent / target).resolve().exists():
                 add_error(errors, path, f"内部链接不存在：{raw}")
 
 
 def main() -> int:
-    errors = []
+    errors: list[str] = []
+    validate_attachments_and_paths(errors)
     validate_privacy(errors)
     validate_resources(errors)
     validate_notes(errors)
@@ -140,7 +276,9 @@ def main() -> int:
         for item in errors:
             print(f"- {item}", file=sys.stderr)
         return 1
-    print("Publication gate passed: privacy, resources, note folders, and links.")
+    print(
+        "Publication gate passed: privacy, attachments, resources, note folders, and links."
+    )
     return 0
 
 
