@@ -1,5 +1,5 @@
 ---
-title : Lecture 2
+title : Lecture 2:Tensor&Einops
 ---
 
 # Tensor(张量)
@@ -19,7 +19,7 @@ eg：
  - 一个是4个指数位
  - 一个是5个指数位
 5. fp4（Nemotron是在fp4上面训练的）当然会有缩放因子，范围会好很多，但是还会有稀疏问题
-# einops
+# Einops
 
 `einops` 是一个用于处理张量维度的 Python 库，可以配合 PyTorch、NumPy、TensorFlow 和 JAX 使用。
 
@@ -576,8 +576,3 @@ y = reduce(x_bool, "batch hidden -> batch", "all")
 ```text
 [False, True]
 ```
-
-
-
-
-
