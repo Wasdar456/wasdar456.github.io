@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Wasdar456 · 网站维护</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">WASDAR456 NOTES</p>
+          <h1>网站维护</h1>
+        </div>
+        <nav class="links" aria-label="网站链接">
+          <a id="site-link" href="https://wasdar456.github.io/" target="_blank" rel="noreferrer">打开网站</a>
+          <a id="actions-link" href="https://github.com/Wasdar456/wasdar456.github.io/actions" target="_blank" rel="noreferrer">部署记录</a>
+        </nav>
+      </header>
+
+      <section class="status-grid" aria-label="仓库状态">
+        <article class="status-card">
+          <span>当前分支</span>
+          <strong id="branch">—</strong>
+        </article>
+        <article class="status-card">
+          <span>远端同步</span>
+          <strong id="sync">读取中</strong>
+        </article>
+        <article class="status-card status-card--wide">
+          <span>最近提交</span>
+          <strong id="latest">—</strong>
+          <small id="latest-meta"></small>
+        </article>
+      </section>
+
+      <section class="panel">
+        <div class="section-heading">
+          <div>
+            <h2>常用操作</h2>
+            <p>检查不会提交文件；编译结果保存在本地 <code>site/</code>。</p>
+          </div>
+          <span id="working-state" class="working-state" aria-live="polite"></span>
+        </div>
+        <div class="action-grid">
+          <button class="action" data-action="pull">
+            <span>更新</span>
+            <small>从 GitHub 拉取最新内容</small>
+          </button>
+          <button class="action" data-action="check">
+            <span>检查</span>
+            <small>隐私、附件和链接检查</small>
+          </button>
+          <button class="action" data-action="build">
+            <span>编译</span>
+            <small>严格构建整站</small>
+          </button>
+          <button class="action" id="preview-button" data-action="preview_start">
+            <span>本地预览</span>
+            <small id="preview-caption">启动可实时刷新的网站</small>
+          </button>
+        </div>
+      </section>
+
+      <section class="panel changes-panel">
+        <div class="section-heading">
+          <div>
+            <h2>本地改动 <span id="change-count" class="count">0</span></h2>
+            <p>只提交勾选的文件。未勾选内容会留在本地。</p>
+          </div>
+          <label class="select-all">
+            <input id="select-all" type="checkbox" />
+            全选
+          </label>
+        </div>
+
+        <div id="file-list" class="file-list" aria-live="polite"></div>
+
+        <div class="commit-row">
+          <label class="message-field">
+            <span>提交说明</span>
+            <input id="commit-message" maxlength="120" value="notes: update" autocomplete="off" />
+          </label>
+          <button id="commit-button" class="button button--secondary">提交所选</button>
+          <button id="publish-button" class="button button--primary">检查、提交并推送</button>
+        </div>
+        <div class="push-row">
+          <span id="ahead-message">没有等待推送的本地提交。</span>
+          <button id="push-button" class="text-button">仅推送已有提交</button>
+        </div>
+      </section>
+
+      <section class="panel log-panel">
+        <div class="section-heading">
+          <div>
+            <h2 id="log-title">操作记录</h2>
+            <p>错误会停在本地，不会自动重复执行。</p>
+          </div>
+          <button id="clear-log" class="text-button">清空</button>
+        </div>
+        <pre id="log" tabindex="0">等待操作。</pre>
+      </section>
+    </main>
+    <script src="/app.js" defer></script>
+  </body>
+</html>
